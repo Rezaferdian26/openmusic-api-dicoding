@@ -43,7 +43,7 @@ class SongsService {
       filteredSongs = await this._pool.query(`SELECT id, title, performer FROM songs WHERE LOWER(performer) LIKE '%${performer}%'`);
     }
 
-    return filteredSongs.rows.map(mapSongDB);
+    return filteredSongs.rows;
   }
 
   async getSongById(id) {
@@ -51,13 +51,13 @@ class SongsService {
       text: 'SELECT * FROM songs WHERE id = $1',
       values: [id],
     };
-    const result = await this._pool.query(query);
+    const { rows, rowCount } = await this._pool.query(query);
 
-    if (!result.rows.length) {
+    if (!rowCount) {
       throw new NotFoundError('Lagu tidak ditemukan');
     }
 
-    return result.rows.map(mapSongDB)[0];
+    return rows.map(mapSongDB)[0];
   }
 
   async editSongById(id, {
